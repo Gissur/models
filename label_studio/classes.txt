@@ -1,0 +1,6 @@
+red_d6_pip1
+red_d6_pip2
+red_d6_pip3
+red_d6_pip4
+red_d6_pip5
+red_d6_pip6

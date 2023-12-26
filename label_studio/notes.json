@@ -1,0 +1,33 @@
+{
+  "categories": [
+    {
+      "id": 0,
+      "name": "red_d6_pip1"
+    },
+    {
+      "id": 1,
+      "name": "red_d6_pip2"
+    },
+    {
+      "id": 2,
+      "name": "red_d6_pip3"
+    },
+    {
+      "id": 3,
+      "name": "red_d6_pip4"
+    },
+    {
+      "id": 4,
+      "name": "red_d6_pip5"
+    },
+    {
+      "id": 5,
+      "name": "red_d6_pip6"
+    }
+  ],
+  "info": {
+    "year": 2023,
+    "version": "1.0",
+    "contributor": "Label Studio"
+  }
+}
