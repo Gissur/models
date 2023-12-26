@@ -153,6 +153,13 @@ A PYTHONPATH variable must be created that points to the \models, \models\resear
 ```
 (tensorflow1) C:\> set PYTHONPATH=C:\tensorflow1\models;C:\tensorflow1\models\research;C:\tensorflow1\models\research\slim
 ```
+
+```
+(tensorflow) C:\
+set PYTHONPATH= C:\Users\gissur\source\GitHub\models; C:\Users\gissur\source\GitHub\models\research; C:\Users\gissur\source\GitHub\models\research\slim
+
+
+```
 (Note: Every time the "tensorflow1" virtual environment is exited, the PYTHONPATH variable is reset and needs to be set up again. You can use "echo %PYTHONPATH% to see if it has been set or not.)
 
 #### 2f. Compile Protobufs and run setup.py
