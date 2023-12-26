@@ -156,7 +156,7 @@ A PYTHONPATH variable must be created that points to the \models, \models\resear
 
 ```
 (tensorflow) C:\
-set PYTHONPATH= C:\Users\gissur\source\GitHub\models; C:\Users\gissur\source\GitHub\models\research; C:\Users\gissur\source\GitHub\models\research\slim
+set PYTHONPATH= C:\Users\gissur\source\GitHub\models; C:\Users\gissur\source\GitHub\models\research; C:\Users\gissur\source\GitHub\models\research\slim; C:\Users\gissur\AppData\Roaming\Python\Python311\Scripts
 
 
 ```
@@ -169,6 +169,8 @@ In the Anaconda Command Prompt, change directories to the \models\research direc
 ```
 (tensorflow1) C:\> cd C:\tensorflow1\models\research
 ```
+
+DEPRECATED - tensorflow1 only
 
 Then copy and paste the following command into the command line and press Enter:
 ```
