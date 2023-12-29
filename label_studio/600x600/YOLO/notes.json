@@ -1,0 +1,37 @@
+{
+  "categories": [
+    {
+      "id": 0,
+      "name": "red_die_invalid"
+    },
+    {
+      "id": 1,
+      "name": "red_die_pip1"
+    },
+    {
+      "id": 2,
+      "name": "red_die_pip2"
+    },
+    {
+      "id": 3,
+      "name": "red_die_pip3"
+    },
+    {
+      "id": 4,
+      "name": "red_die_pip4"
+    },
+    {
+      "id": 5,
+      "name": "red_die_pip5"
+    },
+    {
+      "id": 6,
+      "name": "red_die_pip6"
+    }
+  ],
+  "info": {
+    "year": 2023,
+    "version": "1.0",
+    "contributor": "Label Studio"
+  }
+}

@@ -1,0 +1,7 @@
+red_die_invalid
+red_die_pip1
+red_die_pip2
+red_die_pip3
+red_die_pip4
+red_die_pip5
+red_die_pip6
