@@ -2,8 +2,8 @@
 
 ⚠️ Disclaimer: Checkpoints are based on training with publicly available
 datasets. Some datasets contain limitations, including non-commercial use
-limitations. Please review the terms and conditions made available by third parties
-before using the datasets provided. Checkpoints are licensed under
+limitations. Please review the terms and conditions made available by third
+parties before using the datasets provided. Checkpoints are licensed under
 [Apache 2.0](https://github.com/tensorflow/models/blob/master/LICENSE).
 
 ⚠️ Disclaimer: Datasets hyperlinked from this page are not owned or distributed
@@ -13,6 +13,9 @@ terms and conditions made available by the third parties before using the data.
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Backbones](#backbones)
+- [Decoders](#decoders)
+- [Heads](#heads)
 - [Image Classification](#image-classification)
   * [ResNet models trained with vanilla settings](#resnet-models-trained-with-vanilla-settings)
   * [ResNet-RS models trained with various settings](#resnet-rs-models-trained-with-various-settings)
@@ -40,6 +43,40 @@ terms and conditions made available by the third parties before using the data.
 TF-Vision modeling library for computer vision provides a collection of
 baselines and checkpoints for image classification, object detection, and
 segmentation.
+
+## Backbones
+
+| Backbones        |
+| ---------------- |
+| [DilatedResNet](https://www.tensorflow.org/api_docs/python/tfm/vision/backbones/DilatedResNet)    |
+| [EfficientNet](https://www.tensorflow.org/api_docs/python/tfm/vision/backbones/EfficientNet)    |
+| [MobileDet](https://www.tensorflow.org/api_docs/python/tfm/vision/backbones/MobileDet)    |
+| [MobileNet](https://www.tensorflow.org/api_docs/python/tfm/vision/backbones/MobileNet)    |
+| [ResNet](https://www.tensorflow.org/api_docs/python/tfm/vision/backbones/ResNet)    |
+| [ResNet3D](https://www.tensorflow.org/api_docs/python/tfm/vision/backbones/ResNet3D)    |
+| [RevNet](https://www.tensorflow.org/api_docs/python/tfm/vision/backbones/RevNet)    |
+| [SpineNet](https://www.tensorflow.org/api_docs/python/tfm/vision/backbones/SpineNet)    |
+| [SpineNetMobile](https://www.tensorflow.org/api_docs/python/tfm/vision/backbones/SpineNetMobile)    |
+| [VisionTransformer](https://www.tensorflow.org/api_docs/python/tfm/vision/backbones/VisionTransformer)    |
+
+## Decoders
+
+| Decoders        |
+| --------------- |
+| [ASPP](https://www.tensorflow.org/api_docs/python/tfm/vision/decoders/ASPP)    |
+| [FPN](https://www.tensorflow.org/api_docs/python/tfm/vision/decoders/FPN)    |
+| [NASFPN](https://www.tensorflow.org/api_docs/python/tfm/vision/decoders/NASFPN)    |
+
+## Heads
+
+| Heads           |
+| --------------- |
+| [DetectionHead](https://www.tensorflow.org/api_docs/python/tfm/vision/heads/DetectionHead)    |
+| [MaskHead](https://www.tensorflow.org/api_docs/python/tfm/vision/heads/MaskHead)    |
+| [MaskScoring](https://www.tensorflow.org/api_docs/python/tfm/vision/heads/MaskScoring)    |
+| [RPNHead](https://www.tensorflow.org/api_docs/python/tfm/vision/heads/RPNHead)    |
+| [RetinaNetHead](https://www.tensorflow.org/api_docs/python/tfm/vision/heads/RetinaNetHead)    |
+| [SegmentationHead](https://www.tensorflow.org/api_docs/python/tfm/vision/heads/SegmentationHead)    |
 
 ## Image Classification
 
@@ -171,9 +208,9 @@ training features including:
 
 | Backbone     | Resolution    | Epochs  | FLOPs (B)     | Params (M) |  Box AP | Download |
 | ------------ |:-------------:| -------:|--------------:|-----------:|--------:|---------:|
-| SpineNet-49  | 640x640       |    500    | 85.4| 28.5 | 44.2 | [config](https://github.com/tensorflow/models/blob/master/official/vision/configs/experiments/retinanet/coco_spinenet49_tpu.yaml) \| [ckpt](https://storage.googleapis.com/tf_model_garden/vision/spinenet/spinenet-49-i640.tar.gz) \| [TB.dev](https://tensorboard.dev/experiment/n2UN83TkTdyKZn3slCWulg/#scalars&_smoothingWeight=0)|
-| SpineNet-96  | 1024x1024     |    500    | 265.4 | 43.0 | 48.5 |  [config](https://github.com/tensorflow/models/blob/master/official/vision/configs/experiments/retinanet/coco_spinenet96_tpu.yaml) \| [ckpt](https://storage.googleapis.com/tf_model_garden/vision/spinenet/spinenet-96-i1024.tar.gz) \| [TB.dev](https://tensorboard.dev/experiment/n2UN83TkTdyKZn3slCWulg/#scalars&_smoothingWeight=0)|
-| SpineNet-143 | 1280x1280     |    500    | 524.0 | 67.0 | 50.0 | [config](https://github.com/tensorflow/models/blob/master/official/vision/configs/experiments/retinanet/coco_spinenet143_tpu.yaml) \| [ckpt](https://storage.googleapis.com/tf_model_garden/vision/spinenet/spinenet-143-i1280.tar.gz) \| [TB.dev](https://tensorboard.dev/experiment/n2UN83TkTdyKZn3slCWulg/#scalars&_smoothingWeight=0)|
+| SpineNet-49  | 640x640       |    500    | 85.4| 28.5 | 44.2 | [config](https://github.com/tensorflow/models/blob/master/official/vision/configs/experiments/retinanet/coco_spinenet49_tpu.yaml) \| [ckpt](https://storage.googleapis.com/tf_model_garden/vision/spinenet/spinenet-49-i640.tar.gz) |
+| SpineNet-96  | 1024x1024     |    500    | 265.4 | 43.0 | 48.5 |  [config](https://github.com/tensorflow/models/blob/master/official/vision/configs/experiments/retinanet/coco_spinenet96_tpu.yaml) \| [ckpt](https://storage.googleapis.com/tf_model_garden/vision/spinenet/spinenet-96-i1024.tar.gz) |
+| SpineNet-143 | 1280x1280     |    500    | 524.0 | 67.0 | 50.0 | [config](https://github.com/tensorflow/models/blob/master/official/vision/configs/experiments/retinanet/coco_spinenet143_tpu.yaml) \| [ckpt](https://storage.googleapis.com/tf_model_garden/vision/spinenet/spinenet-143-i1280.tar.gz) |
 
 </details>
 

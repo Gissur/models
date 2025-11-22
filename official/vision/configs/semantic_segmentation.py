@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
 
 """Semantic segmentation configuration definition."""
 import dataclasses
+import math
 import os
 from typing import List, Optional, Sequence, Union
-
-import numpy as np
 
 from official.core import config_definitions as cfg
 from official.core import exp_factory
@@ -91,6 +90,10 @@ class DataConfig(cfg.DataConfig):
   )
   additional_dense_features: List[DenseFeatureConfig] = dataclasses.field(
       default_factory=list)
+  # If `centered_crop` is set to True, then resized crop
+  # (if smaller than padded size) is place in the center of the image.
+  # Default behaviour is to place it at left top corner.
+  centered_crop: bool = False
 
 
 @dataclasses.dataclass
@@ -229,7 +232,7 @@ def seg_deeplabv3_pascal() -> cfg.ExperimentConfig:
   aspp_dilation_rates = [12, 24, 36]  # [6, 12, 18] if output_stride = 16
   multigrid = [1, 2, 4]
   stem_type = 'v1'
-  level = int(np.math.log2(output_stride))
+  level = int(math.log2(output_stride))
   config = cfg.ExperimentConfig(
       task=SemanticSegmentationTask(
           model=SemanticSegmentationModel(
@@ -321,7 +324,7 @@ def seg_deeplabv3plus_pascal() -> cfg.ExperimentConfig:
   aspp_dilation_rates = [6, 12, 18]
   multigrid = [1, 2, 4]
   stem_type = 'v1'
-  level = int(np.math.log2(output_stride))
+  level = int(math.log2(output_stride))
   config = cfg.ExperimentConfig(
       task=SemanticSegmentationTask(
           model=SemanticSegmentationModel(
@@ -488,7 +491,7 @@ def mnv2_deeplabv3_pascal() -> cfg.ExperimentConfig:
   steps_per_epoch = PASCAL_TRAIN_EXAMPLES // train_batch_size
   output_stride = 16
   aspp_dilation_rates = []
-  level = int(np.math.log2(output_stride))
+  level = int(math.log2(output_stride))
   pool_kernel_size = []
 
   config = cfg.ExperimentConfig(
@@ -589,7 +592,7 @@ def seg_deeplabv3plus_cityscapes() -> cfg.ExperimentConfig:
   aspp_dilation_rates = [6, 12, 18]
   multigrid = [1, 2, 4]
   stem_type = 'v1'
-  level = int(np.math.log2(output_stride))
+  level = int(math.log2(output_stride))
   config = cfg.ExperimentConfig(
       task=SemanticSegmentationTask(
           model=SemanticSegmentationModel(
@@ -690,7 +693,7 @@ def mnv2_deeplabv3_cityscapes() -> cfg.ExperimentConfig:
   aspp_dilation_rates = []
   pool_kernel_size = [512, 1024]
 
-  level = int(np.math.log2(output_stride))
+  level = int(math.log2(output_stride))
   config = cfg.ExperimentConfig(
       task=SemanticSegmentationTask(
           model=SemanticSegmentationModel(

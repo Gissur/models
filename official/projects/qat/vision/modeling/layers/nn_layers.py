@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -921,7 +921,7 @@ class MaskScoringQuantized(heads.MaskScoring):
 
     super().build(input_shape)
 
-  def call(self, inputs: tf.Tensor, training: bool = None):
+  def call(self, inputs: tf.Tensor, training: bool = None):  # pytype: disable=annotation-type-mismatch
     """Forward pass mask scoring head.
 
     Args:

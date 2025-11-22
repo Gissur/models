@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ class Parser(hyperparams.Config):
   match_threshold: float = 0.5
   unmatched_threshold: float = 0.5
   aug_rand_hflip: bool = False
+  aug_rand_jpeg: common.RandJpegQuality | None = None
   aug_scale_min: float = 1.0
   aug_scale_max: float = 1.0
   skip_crowd_during_training: bool = True
@@ -136,6 +137,7 @@ class RetinaNetHead(hyperparams.Config):
 @dataclasses.dataclass
 class DetectionGenerator(hyperparams.Config):
   apply_nms: bool = True
+  decode_boxes: bool = True
   pre_nms_top_k: int = 5000
   pre_nms_score_threshold: float = 0.05
   nms_iou_threshold: float = 0.5

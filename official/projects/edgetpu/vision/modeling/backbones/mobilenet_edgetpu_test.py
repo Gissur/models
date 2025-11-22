@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
 # limitations under the License.
 
 """Tests for MobileNet."""
-
-# Import libraries
 
 from absl.testing import parameterized
 import tensorflow as tf, tf_keras
@@ -47,6 +45,8 @@ class MobileNetEdgeTPUTest(parameterized.TestCase, tf.test.TestCase):
       ('mobilenet_edgetpu_v2_l', (1, None, None, 3)),
       ('mobilenet_edgetpu', (1, 512, 512, 3)),
       ('mobilenet_edgetpu_dm1p25', (1, None, None, 3)),
+      ('mobilenet_edgetpu', (1, None, None, 6)),
+      ('mobilenet_edgetpu_v2_tiny', (1, None, None, 6)),
   )
   def test_mobilenet_creation(self, model_id, input_shape):
     """Test creation of MobileNet family models."""
@@ -55,6 +55,7 @@ class MobileNetEdgeTPUTest(parameterized.TestCase, tf.test.TestCase):
     test_model = mobilenet_edgetpu.build_mobilenet_edgetpu(
         input_specs=TestInputSpec(input_shape),
         backbone_config=TestBackboneConfig(model_id))
+
     self.assertGreater(len(test_model.outputs), 1)
 
 

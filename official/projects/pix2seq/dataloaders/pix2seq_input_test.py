@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 """Tests for Pix2Seq input."""
 import io
 
-# Import libraries
 import numpy as np
 from PIL import Image
 import tensorflow as tf, tf_keras

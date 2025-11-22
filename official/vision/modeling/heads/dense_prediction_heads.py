@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 from typing import Any, Dict, List, Mapping, Optional, Union
 
-# Import libraries
-
 import numpy as np
 import tensorflow as tf, tf_keras
 
@@ -33,7 +31,7 @@ class RetinaNetHead(tf_keras.layers.Layer):
       min_level: int,
       max_level: int,
       num_classes: int,
-      num_anchors_per_location: int,
+      num_anchors_per_location: int | dict[str, int],
       num_convs: int = 4,
       num_filters: int = 256,
       attribute_heads: Optional[List[Dict[str, Any]]] = None,
@@ -55,7 +53,9 @@ class RetinaNetHead(tf_keras.layers.Layer):
       min_level: An `int` number of minimum feature level.
       max_level: An `int` number of maximum feature level.
       num_classes: An `int` number of classes to predict.
-      num_anchors_per_location: An `int` number of anchors per pixel location.
+      num_anchors_per_location: Number of anchors per pixel location. If an
+        `int`, the same number is used for all levels. If a `dict`, it specifies
+        the number at each level.
       num_convs: An `int` number that represents the number of the intermediate
         conv layers before the prediction.
       num_filters: An `int` number that represents the number of filters of the
@@ -134,15 +134,21 @@ class RetinaNetHead(tf_keras.layers.Layer):
     }
 
     self._classifier_kwargs = {
-        'filters': (
-            self._config_dict['num_classes']
-            * self._config_dict['num_anchors_per_location']
-        ),
         'kernel_size': 3,
         'padding': 'same',
         'bias_initializer': tf.constant_initializer(-np.log((1 - 0.01) / 0.01)),
         'bias_regularizer': self._config_dict['bias_regularizer'],
     }
+    if isinstance(self._config_dict['num_anchors_per_location'], dict):
+      self._classifier_kwargs['filters'] = {
+          level: v * self._config_dict['num_classes']
+          for level, v in self._config_dict['num_anchors_per_location'].items()
+      }
+    else:
+      self._classifier_kwargs['filters'] = (
+          self._config_dict['num_classes']
+          * self._config_dict['num_anchors_per_location']
+      )
     if self._config_dict['use_separable_conv']:
       self._classifier_kwargs.update({
           'depthwise_initializer': tf_keras.initializers.RandomNormal(
@@ -161,15 +167,21 @@ class RetinaNetHead(tf_keras.layers.Layer):
       })
 
     self._box_regressor_kwargs = {
-        'filters': (
-            self._config_dict['num_params_per_anchor']
-            * self._config_dict['num_anchors_per_location']
-        ),
         'kernel_size': 3,
         'padding': 'same',
         'bias_initializer': tf.zeros_initializer(),
         'bias_regularizer': self._config_dict['bias_regularizer'],
     }
+    if isinstance(self._config_dict['num_anchors_per_location'], dict):
+      self._box_regressor_kwargs['filters'] = {
+          level: v * self._config_dict['num_params_per_anchor']
+          for level, v in self._config_dict['num_anchors_per_location'].items()
+      }
+    else:
+      self._box_regressor_kwargs['filters'] = (
+          self._config_dict['num_params_per_anchor']
+          * self._config_dict['num_anchors_per_location']
+      )
     if self._config_dict['use_separable_conv']:
       self._box_regressor_kwargs.update({
           'depthwise_initializer': tf_keras.initializers.RandomNormal(
@@ -341,9 +353,16 @@ class RetinaNetHead(tf_keras.layers.Layer):
       for level in range(
           self._config_dict['min_level'], self._config_dict['max_level'] + 1
       ):
-        predictor_kwargs = self._conv_kwargs_new_kernel_init(predictor_kwargs)
+        predictor_kwargs_level = predictor_kwargs.copy()
+        if isinstance(predictor_kwargs_level['filters'], dict):
+          predictor_kwargs_level['filters'] = predictor_kwargs_level['filters'][
+              str(level)
+          ]
+        predictor_kwargs_level = self._conv_kwargs_new_kernel_init(
+            predictor_kwargs_level
+        )
         predictors.append(
-            conv_op(name=f'{predictor_name}-{level}', **predictor_kwargs)
+            conv_op(name=f'{predictor_name}-{level}', **predictor_kwargs_level)
         )
 
     return convs, norms, predictors

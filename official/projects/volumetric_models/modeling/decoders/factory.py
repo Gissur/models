@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,8 +40,6 @@ then don't imported the decoder module in decoders/__init__.py, but import it
 in place that uses it.
 """
 from typing import Union, Mapping, Optional
-
-# Import libraries
 
 import tensorflow as tf, tf_keras
 

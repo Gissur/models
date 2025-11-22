@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -109,7 +109,7 @@ class Featurizer(tf_keras.layers.Layer):
     batch_dims = tf.expand_dims(batch_dims, axis=-1)
     return batch_dims
 
-  def _get_batch_size_and_dims(self,
+  def _get_batch_size_and_dims(self,  # pytype: disable=annotation-type-mismatch
                                training: bool = None) -> Tuple[int, tf.Tensor]:
     # We use training as a ternary indicator, None for test mode.
     # Test mode will be used for saving model and model inference.
@@ -125,7 +125,7 @@ class Featurizer(tf_keras.layers.Layer):
         batch_dims = self._eval_batch_dims
     return batch_size, batch_dims
 
-  def call(self,
+  def call(self,  # pytype: disable=annotation-type-mismatch
            pillars: tf.Tensor,
            indices: tf.Tensor,
            training: bool = None) -> tf.Tensor:

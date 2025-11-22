@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
 # limitations under the License.
 
 """Contains definitions of mobilenet_edgetpu_v2 Networks."""
-
-# Import libraries
 
 from absl import logging
 import tensorflow as tf, tf_keras
@@ -75,6 +73,7 @@ def build_mobilenet_edgetpu(input_specs: tf_keras.layers.InputSpec,
             'batch_norm': 'tpu',
             'rescale_input': False,
             'resolution': input_specs.shape[1:3],
+            'input_channels': input_specs.shape[3],
             'backbone_only': True,
             'features_as_dict': True,
             'dtype': 'bfloat16'
@@ -90,6 +89,7 @@ def build_mobilenet_edgetpu(input_specs: tf_keras.layers.InputSpec,
             'batch_norm': 'tpu',
             'rescale_input': False,
             'resolution': input_specs.shape[1:3],
+            'input_channels': input_specs.shape[3],
             'backbone_only': True,
             'dtype': 'bfloat16'
         },

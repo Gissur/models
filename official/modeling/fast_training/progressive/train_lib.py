@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ prog_trainer_lib.ProgressiveTrainer instead of the base trainer.
 import os
 from typing import Any, Mapping, Tuple
 
-# Import libraries
 from absl import logging
 import orbit
 import tensorflow as tf, tf_keras

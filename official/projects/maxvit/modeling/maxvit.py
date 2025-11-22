@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -763,7 +763,7 @@ class MaxViT(tf_keras.Model):
       output = ops.maybe_reshape_to_1d(output)
     return output
 
-  def call(
+  def call(  # pytype: disable=annotation-type-mismatch
       self, inputs: tf.Tensor, mask: Optional[Any] = None, training: bool = None
   ) -> Mapping[str, tf.Tensor]:
     logging.info(

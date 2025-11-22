@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ from official.modeling.privacy import configs as dp_configs
 class TaskRoutine(hyperparams.Config):
   # TODO(hongkuny): deprecate the task_name once we migrated client code.
   task_name: str = ""
-  task_config: cfg.TaskConfig = None
+  task_config: cfg.TaskConfig | None = None
   eval_steps: Optional[int] = None
   task_weight: Optional[float] = 1.0
 
@@ -33,7 +33,7 @@ class TaskRoutine(hyperparams.Config):
 @dataclasses.dataclass
 class MultiTaskConfig(hyperparams.Config):
   init_checkpoint: str = ""
-  model: hyperparams.Config = None
+  model: hyperparams.Config | None = None
   task_routines: Tuple[TaskRoutine, ...] = ()
   # Configs for differential privacy
   # These configs are only effective if you use create_optimizer in

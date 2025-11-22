@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
 
 """Panoptic Deeplab configuration definition."""
 import dataclasses
+import math
 import os
 from typing import List, Optional, Union
-
-import numpy as np
 
 from official.core import config_definitions as cfg
 from official.core import exp_factory
@@ -220,7 +219,7 @@ def panoptic_deeplab_resnet_coco() -> cfg.ExperimentConfig:
   aspp_dilation_rates = [6, 12, 18]
   multigrid = [1, 2, 4]
   stem_type = 'v1'
-  level = int(np.math.log2(output_stride))
+  level = int(math.log2(output_stride))
 
   config = cfg.ExperimentConfig(
       runtime=cfg.RuntimeConfig(
@@ -385,7 +384,7 @@ def panoptic_deeplab_mobilenetv3_large_coco() -> cfg.ExperimentConfig:
   input_size = [640, 640, 3]
   output_stride = 16
   aspp_dilation_rates = [6, 12, 18]
-  level = int(np.math.log2(output_stride))
+  level = int(math.log2(output_stride))
 
   config = cfg.ExperimentConfig(
       runtime=cfg.RuntimeConfig(
@@ -547,7 +546,7 @@ def panoptic_deeplab_mobilenetv3_small_coco() -> cfg.ExperimentConfig:
   input_size = [640, 640, 3]
   output_stride = 16
   aspp_dilation_rates = [6, 12, 18]
-  level = int(np.math.log2(output_stride))
+  level = int(math.log2(output_stride))
 
   config = cfg.ExperimentConfig(
       runtime=cfg.RuntimeConfig(

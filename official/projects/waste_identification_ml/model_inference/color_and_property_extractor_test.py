@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -105,12 +105,22 @@ class ColorAndPropertyExtractor(unittest.TestCase):
         original_image, black_threshold=50
     )
 
-    self.assertEqual(result, ('Na', 'Na', 'Na'))
+    self.assertEqual(result, (0, 0, 0))
 
   def test_est_color(self):
     result = color_and_property_extractor.est_color((255, 0, 0))
 
     self.assertEqual(result, 'red')
+
+  def test_generic_color(self):
+    test_colors = np.array(
+        [(255, 0, 0), (55, 118, 171), (73, 128, 41), (231, 112, 13), (0, 0, 0)]
+    )
+    expected_colors = ['red', 'blue', 'green', 'orange', 'black']
+
+    result = color_and_property_extractor.get_generic_color_name(test_colors)
+
+    self.assertEqual(result, expected_colors)
 
 
 if __name__ == '__main__':

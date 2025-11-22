@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 # limitations under the License.
 
 """Tests for Keras-based transformer block layer."""
+
+import math
 
 from absl.testing import parameterized
 import numpy as np
@@ -53,6 +55,25 @@ class TransformerEncoderBlockLayerTest(
     # The default output of a transformer layer should be the same as the input.
     self.assertEqual(data_tensor.shape.as_list(), output_tensor.shape.as_list())
 
+  def test_layer_creation_with_dict_inputs(self, transformer_cls):
+    test_layer = transformer_cls(
+        num_attention_heads=10, inner_dim=2048, inner_activation='relu'
+    )
+    sequence_length = 21
+    width = 80
+    # Create a 3-dimensional input (the first dimension is implicit).
+    data_tensor = tf_keras.Input(shape=(sequence_length, width))
+    # Create a 2-dimensional input (the first dimension is implicit).
+    mask_tensor = tf_keras.Input(shape=(sequence_length, sequence_length))
+    inputs = {
+        'input_tensor': data_tensor,
+        'key_value_tensor': data_tensor,
+        'attention_mask': mask_tensor,
+    }
+    output_tensor = test_layer(inputs)
+    # The default output of a transformer layer should be the same as the input.
+    self.assertEqual(data_tensor.shape.as_list(), output_tensor.shape.as_list())
+
   def test_layer_invocation(self, transformer_cls):
     test_layer = transformer_cls(
         num_attention_heads=10, inner_dim=2048, inner_activation='relu')
@@ -82,6 +103,40 @@ class TransformerEncoderBlockLayerTest(
     # Create a 2-dimensional input (the first dimension is implicit).
     mask_tensor = tf_keras.Input(shape=(sequence_length, sequence_length))
     output_tensor = test_layer([data_tensor, mask_tensor])
+
+    # Create a model from the test layer.
+    model = tf_keras.Model([data_tensor, mask_tensor], output_tensor)
+
+    # Invoke the model on test data. We can't validate the output data itself
+    # (the NN is too complex) but this will rule out structural runtime errors.
+    batch_size = 6
+    input_data = 10 * np.random.random_sample(
+        (batch_size, sequence_length, width)
+    )
+    # The attention mask should be of shape (batch, from_seq_len, to_seq_len),
+    # which here is (batch, sequence_length, sequence_length)
+    mask_data = np.random.randint(
+        2, size=(batch_size, sequence_length, sequence_length)
+    )
+    _ = model.predict([input_data, mask_data])
+
+  def test_layer_invocation_with_dict_inputs(self, transformer_cls):
+    test_layer = transformer_cls(
+        num_attention_heads=10, inner_dim=2048, inner_activation='relu'
+    )
+    sequence_length = 21
+    width = 80
+    # Create a 3-dimensional input (the first dimension is implicit).
+    data_tensor = tf_keras.Input(shape=(sequence_length, width))
+    # Create a 2-dimensional input (the first dimension is implicit).
+    mask_tensor = tf_keras.Input(shape=(sequence_length, sequence_length))
+    inputs = {
+        'input_tensor': data_tensor,
+        'key_value_tensor': data_tensor,
+        'attention_mask': mask_tensor,
+    }
+
+    output_tensor = test_layer(inputs)
 
     # Create a model from the test layer.
     model = tf_keras.Model([data_tensor, mask_tensor], output_tensor)
@@ -429,6 +484,28 @@ class TransformerArgumentTest(tf.test.TestCase, parameterized.TestCase):
     output = encoder_block(inputs)
     self.assertEqual(output.shape, (2, 4, hidden_size))
 
+  def test_use_rms_norm(self):
+    num_attention_heads = 2
+    hidden_size = 16
+    encoder_block = TransformerEncoderBlock(
+        num_attention_heads=num_attention_heads,
+        inner_dim=32,
+        inner_activation='relu',
+        output_dropout=0.1,
+        attention_dropout=0.1,
+        use_bias=False,
+        use_rms_norm=True,
+        norm_epsilon=1e-6,
+        inner_dropout=0.1,
+        attention_initializer=tf_keras.initializers.RandomUniform(
+            minval=0., maxval=1.))
+    # Forward path.
+    dummy_tensor = tf.zeros([2, 4, 16], dtype=tf.float32)
+    dummy_mask = tf.zeros([2, 4, 4], dtype=tf.float32)
+    inputs = [dummy_tensor, dummy_mask]
+    output = encoder_block(inputs)
+    self.assertEqual(output.shape, (2, 4, hidden_size))
+
   def test_norm_first_false_and_diff_q_kv_att_layer_norm_true_raises(self):
     some_num_attention_heads = 2
     some_inner_dim = 32
@@ -666,29 +743,256 @@ class TransformerArgumentTest(tf.test.TestCase, parameterized.TestCase):
         num_attention_heads=num_attention_heads,
         inner_dim=2048,
         inner_activation='relu',
-        return_attention_scores=return_attention_scores)
+        return_attention_scores=return_attention_scores,
+    )
     # Create a 3-dimensional input (the first dimension is implicit).
     data_tensor = tf_keras.Input(shape=(sequence_length, width))
     output_tensor = test_layer(data_tensor)
 
     expected_layer_output_shape = [None, sequence_length, width]
     expected_attention_scores_shape = [
-        None, num_attention_heads, sequence_length, sequence_length
+        None,
+        num_attention_heads,
+        sequence_length,
+        sequence_length,
     ]
 
     if return_attention_scores:
       self.assertIsInstance(output_tensor, tuple)
       self.assertLen(output_tensor, 2)
       # First is the standard output.
-      self.assertEqual(output_tensor[0].shape.as_list(),
-                       expected_layer_output_shape)
+      self.assertEqual(
+          output_tensor[0].shape.as_list(), expected_layer_output_shape
+      )
       # Second is the attention scores.
-      self.assertEqual(output_tensor[1].shape.as_list(),
-                       expected_attention_scores_shape)
+      self.assertEqual(
+          output_tensor[1].shape.as_list(), expected_attention_scores_shape
+      )
     else:
       # Only the standard layer output.
-      self.assertEqual(output_tensor.shape.as_list(),
-                       expected_layer_output_shape)
+      self.assertEqual(
+          output_tensor.shape.as_list(), expected_layer_output_shape
+      )
+
+  @parameterized.named_parameters(
+      ('mqa', 1),
+      ('gqa', 4),
+      ('talking_heads_mqa', 1, True),
+      ('talking_heads_gqa', 4, True),
+  )
+  def test_attention_with_kv_heads(
+      self, num_kv_heads, enable_talking_heads=False
+  ):
+    num_attention_heads = 8
+    sequence_length = 21
+    width = 80
+
+    test_layer = TransformerEncoderBlock(
+        num_attention_heads=num_attention_heads,
+        inner_dim=2048,
+        inner_activation='relu',
+        return_attention_scores=True,
+        num_kv_heads=num_kv_heads,
+        enable_talking_heads=enable_talking_heads,
+        enable_gqa_optimization=True,
+    )
+    # Create a 3-dimensional input (the first dimension is implicit).
+    data_tensor = tf_keras.Input(shape=(sequence_length, width))
+    output_tensor = test_layer(data_tensor)
+
+    expected_layer_output_shape = [None, sequence_length, width]
+    expected_attention_scores_shape = [
+        None,
+        num_attention_heads,
+        sequence_length,
+        sequence_length,
+    ]
+
+    self.assertIsInstance(output_tensor, tuple)
+    self.assertLen(output_tensor, 2)
+    # First is the standard output.
+    self.assertEqual(
+        output_tensor[0].shape.as_list(), expected_layer_output_shape
+    )
+    # Second is the attention scores.
+    self.assertEqual(
+        output_tensor[1].shape.as_list(), expected_attention_scores_shape
+    )
+
+  @parameterized.named_parameters(
+      ('use_softmax_attn', False),
+      ('use_softmax_attn_mqa', False, 1),
+      ('use_sigmoid_attn', True),
+      ('use_sigmoid_attn_mqa', True, 1),
+  )
+  def test_block_sparse_attention(self, use_sigmoid_attn, num_kv_heads=None):
+    num_attention_heads = 8
+    sequence_length = 21
+    width = 80
+    src_block_size = 7
+    tgt_block_size = 7
+
+    test_layer = TransformerEncoderBlock(
+        num_attention_heads=num_attention_heads,
+        inner_dim=2048,
+        inner_activation='relu',
+        return_attention_scores=True,
+        src_block_size=src_block_size,
+        tgt_block_size=tgt_block_size,
+        num_kv_heads=num_kv_heads,
+        use_sigmoid_attn=use_sigmoid_attn,
+        sigmoid_attn_bias=-math.log(sequence_length)
+        if use_sigmoid_attn
+        else None,
+    )
+    # Create a 3-dimensional input (the first dimension is implicit).
+    data_tensor = tf_keras.Input(shape=(sequence_length, width))
+    output_tensor = test_layer(data_tensor)
+
+    expected_layer_output_shape = [None, sequence_length, width]
+    expected_attention_scores_shape = [
+        None,
+        num_attention_heads,
+        sequence_length//src_block_size,
+        src_block_size,
+        tgt_block_size,
+    ]
+
+    self.assertIsInstance(output_tensor, tuple)
+    self.assertLen(output_tensor, 2)
+    # First is the standard output.
+    self.assertEqual(
+        output_tensor[0].shape.as_list(), expected_layer_output_shape
+    )
+    # Second is the attention scores.
+    self.assertEqual(
+        output_tensor[1].shape.as_list(), expected_attention_scores_shape
+    )
+
+  @parameterized.named_parameters(
+      ('unshared_kv_projection', False),
+      ('shared_kv_projection', True),
+  )
+  def test_low_rank_attention(self, shared_kv_projection):
+    num_attention_heads = 8
+    sequence_length = 21
+    linformer_dim = 7
+    width = 80
+
+    test_layer = TransformerEncoderBlock(
+        num_attention_heads=num_attention_heads,
+        inner_dim=2048,
+        inner_activation='relu',
+        return_attention_scores=True,
+        linformer_dim=linformer_dim,
+        linformer_shared_kv_projection=shared_kv_projection,
+    )
+    # Create a 3-dimensional input (the first dimension is implicit).
+    data_tensor = tf_keras.Input(shape=(sequence_length, width))
+    output_tensor = test_layer(data_tensor)
+
+    expected_layer_output_shape = [None, sequence_length, width]
+    expected_attention_scores_shape = [
+        None,
+        num_attention_heads,
+        sequence_length,
+        linformer_dim,
+    ]
+
+    self.assertIsInstance(output_tensor, tuple)
+    self.assertLen(output_tensor, 2)
+    # First is the standard output.
+    self.assertEqual(
+        output_tensor[0].shape.as_list(), expected_layer_output_shape
+    )
+    # Second is the attention scores.
+    self.assertEqual(
+        output_tensor[1].shape.as_list(), expected_attention_scores_shape
+    )
+
+  def test_low_rank_attention_with_constformer(self):
+    num_attention_heads = 8
+    sequence_length = 21
+    linformer_dim = 7
+    lowrank_query_seq_proj_dim = 10
+    width = 80
+    shared_kv_projection = False
+
+    test_layer = TransformerEncoderBlock(
+        num_attention_heads=num_attention_heads,
+        inner_dim=2048,
+        inner_activation='relu',
+        return_attention_scores=True,
+        linformer_dim=linformer_dim,
+        linformer_shared_kv_projection=shared_kv_projection,
+        lowrank_query_seq_proj_dim=lowrank_query_seq_proj_dim,
+    )
+    # Create a 3-dimensional input (the first dimension is implicit).
+    data_tensor = tf_keras.Input(shape=(sequence_length, width))
+    output_tensor = test_layer(data_tensor)
+
+    # The output from constformer has bottlenecked sequence length.
+    expected_layer_output_shape = [None, lowrank_query_seq_proj_dim, width]
+    # Note that attentions scores with Constformer don't have same
+    # interpretation as the original attention scores, since the sequence
+    # length is squashed.
+    expected_attention_scores_shape = [
+        None,
+        num_attention_heads,
+        lowrank_query_seq_proj_dim,
+        linformer_dim,
+    ]
+
+    self.assertIsInstance(output_tensor, tuple)
+    self.assertLen(output_tensor, 2)
+    # First is the standard output.
+    self.assertEqual(
+        output_tensor[0].shape.as_list(), expected_layer_output_shape
+    )
+    # Second is the attention scores.
+    self.assertEqual(
+        output_tensor[1].shape.as_list(), expected_attention_scores_shape
+    )
+
+  def test_low_rank_attention_with_constformer_no_linformer(self):
+    num_attention_heads = 8
+    sequence_length = 21
+    lowrank_query_seq_proj_dim = 10
+    width = 80
+
+    test_layer = TransformerEncoderBlock(
+        num_attention_heads=num_attention_heads,
+        inner_dim=2048,
+        inner_activation='relu',
+        return_attention_scores=True,
+        lowrank_query_seq_proj_dim=lowrank_query_seq_proj_dim,
+    )
+    # Create a 3-dimensional input (the first dimension is implicit).
+    data_tensor = tf_keras.Input(shape=(sequence_length, width))
+    output_tensor = test_layer(data_tensor)
+
+    # The output from constformer has bottlenecked sequence length.
+    expected_layer_output_shape = [None, lowrank_query_seq_proj_dim, width]
+    # Note that attentions scores with Constformer don't have same
+    # interpretation as the original attention scores, since the sequence
+    # length is squashed.
+    expected_attention_scores_shape = [
+        None,
+        num_attention_heads,
+        lowrank_query_seq_proj_dim,
+        sequence_length,
+    ]
+
+    self.assertIsInstance(output_tensor, tuple)
+    self.assertLen(output_tensor, 2)
+    # First is the standard output.
+    self.assertEqual(
+        output_tensor[0].shape.as_list(), expected_layer_output_shape
+    )
+    # Second is the attention scores.
+    self.assertEqual(
+        output_tensor[1].shape.as_list(), expected_attention_scores_shape
+    )
 
 
 if __name__ == '__main__':

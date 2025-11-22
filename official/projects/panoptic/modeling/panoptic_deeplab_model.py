@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ class PanopticDeeplabModel(tf_keras.Model):
     self.instance_head = instance_head
     self.post_processor = post_processor
 
-  def call(  # pytype: disable=signature-mismatch  # overriding-parameter-count-checks
+  def call(  # pytype: disable=annotation-type-mismatch,signature-mismatch
       self, inputs: tf.Tensor,
       image_info: tf.Tensor,
       training: bool = None):

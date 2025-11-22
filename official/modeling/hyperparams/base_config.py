@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import copy
 import dataclasses
 import functools
 import inspect
+import types
 import typing
 from typing import Any, List, Mapping, Optional, Type, Union
 
@@ -58,8 +59,13 @@ def bind(config_cls):
 
 
 def _is_optional(field):
-  return typing.get_origin(field) is Union and type(None) in typing.get_args(
-      field)
+  # Two styles of annotating optional fields:
+  #   Optional[T] -> typing.Union
+  #   T | None    -> types.UnionType
+  is_union = typing.get_origin(field) in (Union, types.UnionType)
+  # An optional field is a union of a type, and NoneType.
+  args = typing.get_args(field)
+  return is_union and len(args) == 2 and type(None) in args
 
 
 @dataclasses.dataclass
@@ -189,6 +195,9 @@ class Config(params_dict.ParamsDict):
     if not subconfig_type:
       subconfig_type = Config
 
+    def _is_subtype(x, target) -> bool:
+      return isinstance(x, type) and issubclass(x, target)
+
     annotations = cls._get_annotations()
     if k in annotations:
       # Directly Config subtype.
@@ -198,22 +207,16 @@ class Config(params_dict.ParamsDict):
       traverse_in = True
       while traverse_in:
         i += 1
-        if (isinstance(type_annotation, type) and
-            issubclass(type_annotation, Config)):
+        if _is_subtype(type_annotation, Config):
           subconfig_type = type_annotation
           break
         else:
-          # Check if the field is a sequence of subtypes.
-          field_type = typing.get_origin(type_annotation)
-          if (isinstance(field_type, type) and
-              issubclass(field_type, cls.SEQUENCE_TYPES)):
-            element_type = typing.get_args(type_annotation)[0]
-            subconfig_type = (
-                element_type if issubclass(element_type, params_dict.ParamsDict)
-                else subconfig_type)
-            break
-          elif _is_optional(type_annotation):
-            # Strip the `Optional` annotation and process the subtype.
+          # If the field is a sequence of sub-config types or an Optional
+          # sub-config, then strip the container and process the sub-config.
+          is_sequence = _is_subtype(
+              typing.get_origin(type_annotation), cls.SEQUENCE_TYPES
+          )
+          if is_sequence or _is_optional(type_annotation):
             type_annotation = typing.get_args(type_annotation)[0]
             continue
         traverse_in = False
@@ -243,8 +246,11 @@ class Config(params_dict.ParamsDict):
         # If the key not exist or the value is None, a new Config-family object
         # sould be created for the key.
         self.__dict__[k] = subconfig_type(v)
-      else:
+      elif hasattr(self.__dict__[k], 'override'):
         self.__dict__[k].override(v)
+      else:
+        # The key exists but it cannot be overridden. For example, it's a str.
+        self.__dict__[k] = subconfig_type(v)
     elif not is_null(k) and isinstance(v, self.SEQUENCE_TYPES) and all(
         [not isinstance(e, self.IMMUTABLE_TYPES) for e in v]):
       if len(self.__dict__[k]) == len(v):
@@ -297,9 +303,11 @@ class Config(params_dict.ParamsDict):
         else:
           self._set(k, v)
       else:
-        if isinstance(v, dict) and self.__dict__[k]:
+        if isinstance(v, dict) and hasattr(self.__dict__[k], '_override'):
           self.__dict__[k]._override(v, is_strict)  # pylint: disable=protected-access
-        elif isinstance(v, params_dict.ParamsDict) and self.__dict__[k]:
+        elif isinstance(v, params_dict.ParamsDict) and hasattr(
+            self.__dict__[k], '_override'
+        ):
           self.__dict__[k]._override(v.as_dict(), is_strict)  # pylint: disable=protected-access
         else:
           self._set(k, v)

@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@
 import os
 import tempfile
 from typing import Any, List, Mapping, Optional, Tuple
-
-# Import libraries
 
 from absl import logging
 import orbit
@@ -300,7 +298,7 @@ class OrbitExperimentRunner:
 
     if self._run_post_eval or mode == 'train_and_post_eval':
       with self.strategy.scope():
-        return self.trainer.model, self.controller.evaluate(
+        return self.trainer.model, self.controller.evaluate(  # pytype: disable=bad-return-type  # always-use-property-annotation
             steps=params.trainer.validation_steps)
     else:
       return self.trainer.model, {}

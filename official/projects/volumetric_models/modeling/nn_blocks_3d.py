@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 from typing import Sequence, Union
 
-# Import libraries
 import tensorflow as tf, tf_keras
 
 from official.modeling import tf_utils
@@ -132,7 +131,7 @@ class BasicBlock3DVolume(tf_keras.layers.Layer):
     base_config = super(BasicBlock3DVolume, self).get_config()
     return dict(list(base_config.items()) + list(config.items()))
 
-  def call(self, inputs: tf.Tensor, training: bool = None) -> tf.Tensor:
+  def call(self, inputs: tf.Tensor, training: bool = None) -> tf.Tensor:  # pytype: disable=annotation-type-mismatch
     """Runs forward pass on the input tensor."""
     x = inputs
     for conv, norm in zip(self._convs, self._norms):

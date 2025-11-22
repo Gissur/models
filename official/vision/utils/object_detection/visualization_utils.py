@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -437,6 +437,11 @@ def visualize_outputs(
           'time.'
       )
     return tf.cast(images, dtype=tf.uint8)
+
+  if images.shape[3] > 3:
+    images = images[:, :, :, 0:3]
+  elif images.shape[3] == 1:
+    images = tf.image.grayscale_to_rgb(images)
 
   images = tf.nest.map_structure(
       tf.identity,
@@ -969,6 +974,11 @@ def visualize_segmentation_outputs(
       )
     return tf.cast(images, dtype=tf.uint8)
 
+  if images.shape[3] > 3:
+    images = images[:, :, :, 0:3]
+  elif images.shape[3] == 1:
+    images = tf.image.grayscale_to_rgb(images)
+
   images = tf.nest.map_structure(
       tf.identity,
       tf.map_fn(
@@ -981,10 +991,6 @@ def visualize_segmentation_outputs(
       ),
   )
 
-  if images.shape[3] > 3:
-    images = images[:, :, :, 0:3]
-  elif images.shape[3] == 1:
-    images = tf.image.grayscale_to_rgb(images)
   if true_image_shape is None:
     true_shapes = tf.constant(-1, shape=[images.shape.as_list()[0], 3])
   else:

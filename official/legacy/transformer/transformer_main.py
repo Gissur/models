@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@ BLEU score.
 
 import os
 import tempfile
-
-# Import libraries
 
 from absl import app
 from absl import flags
@@ -457,8 +455,6 @@ def _ensure_dir(log_dir):
 
 def main(_):
   flags_obj = flags.FLAGS
-  if flags_obj.enable_mlir_bridge:
-    tf.config.experimental.enable_mlir_bridge()
   task = TransformerTask(flags_obj)
 
   # Execute flag override logic for better model performance

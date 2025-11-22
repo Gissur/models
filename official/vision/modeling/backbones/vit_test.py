@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -94,6 +94,17 @@ class VisionTransformerTest(parameterized.TestCase, tf.test.TestCase):
     inputs = tf_keras.Input(shape=(input_size, input_size, 3), batch_size=1)
     output = network(inputs)['pre_logits']
     self.assertEqual(output.shape, [1, 1, 1, 768])
+
+  def test_attention_scores(self):
+    tf_keras.backend.set_image_data_format('channels_last')
+    input_specs = tf_keras.layers.InputSpec(shape=[2, 224, 224, 3])
+    network = vit.VisionTransformer(
+        input_specs=input_specs, output_attention_scores=True
+    )
+
+    inputs = tf_keras.Input(shape=(224, 224, 3), batch_size=1)
+    outputs = network(inputs)
+    self.assertEqual(outputs['attention_scores'].shape, [1, 12, 197, 197])
 
 
 if __name__ == '__main__':

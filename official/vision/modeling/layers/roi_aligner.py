@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,10 +38,12 @@ class MultilevelROIAligner(tf_keras.layers.Layer):
     }
     super(MultilevelROIAligner, self).__init__(**kwargs)
 
-  def call(self,
-           features: Mapping[str, tf.Tensor],
-           boxes: tf.Tensor,
-           training: bool = None):
+  def call(
+      self,  # pytype: disable=annotation-type-mismatch
+      features: Mapping[str, tf.Tensor],
+      boxes: tf.Tensor,
+      training: bool = None,
+  ):
     """Generates ROIs.
 
     Args:

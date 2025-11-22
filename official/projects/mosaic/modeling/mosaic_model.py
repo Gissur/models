@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ class MosaicSegmentationModel(tf_keras.Model):
     self.head = head
     self.mask_scoring_head = mask_scoring_head
 
-  def call(self,  # pytype: disable=signature-mismatch  # overriding-parameter-count-checks
+  def call(self,  # pytype: disable=annotation-type-mismatch,signature-mismatch
            inputs: tf.Tensor,
            training: bool = None) -> Dict[str, tf.Tensor]:
     backbone_features = self.backbone(inputs)

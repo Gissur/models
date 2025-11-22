@@ -1,4 +1,4 @@
-# Copyright 2023 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2025 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,11 @@
 
 """Contains definitions of Residual Networks with Deeplab modifications."""
 
-from typing import Callable, Optional, Tuple, List
+import math
+from typing import Callable, List, Optional, Tuple
 
-import numpy as np
 import tensorflow as tf, tf_keras
+
 from official.modeling import hyperparams
 from official.modeling import tf_utils
 from official.vision.modeling.backbones import factory
@@ -238,7 +239,7 @@ class DilatedResNet(tf_keras.Model):
     else:
       x = layers.MaxPool2D(pool_size=3, strides=2, padding='same')(x)
 
-    normal_resnet_stage = int(np.math.log2(self._output_stride)) - 2
+    normal_resnet_stage = int(math.log2(self._output_stride)) - 2
 
     endpoints = {}
     for i in range(normal_resnet_stage + 1):
