@@ -1,0 +1,111 @@
+# Die Detection with MobileNetV2 + RetinaNet
+# Optimized for Raspberry Pi 4 deployment
+# Based on: official/vision/configs/experiments/retinanet/coco_mobilenetv2_tpu.yaml
+
+runtime:
+  distribution_strategy: 'mirrored'  # Use 'mirrored' for GPU, 'tpu' for TPU
+  mixed_precision_dtype: 'float32'   # Use float32 for better compatibility
+
+task:
+  model:
+    num_classes: 7  # 7 classes: invalid + pip1-pip6
+    input_size: [600, 600, 3]  # Match your dataset resolution
+
+    # Lightweight MobileNetV2 backbone
+    backbone:
+      type: 'mobilenet'
+      mobilenet:
+        model_id: 'MobileNetV2'
+        filter_size_scale: 1.0  # Full size, can reduce to 0.75 or 0.5 for faster inference
+        output_stride: null
+
+    # Feature Pyramid Network decoder
+    decoder:
+      type: 'fpn'
+      fpn:
+        num_filters: 128
+        use_separable_conv: true  # Lighter than regular conv
+        use_keras_layer: true
+
+    # Detection head
+    head:
+      num_convs: 4
+      num_filters: 128
+      use_separable_conv: true  # Lighter than regular conv
+
+    # Anchor configuration
+    anchor:
+      num_scales: 3
+      aspect_ratios: [0.5, 1.0, 2.0]  # Dice are roughly square, so 1.0 is most important
+      anchor_size: 3
+
+    min_level: 3
+    max_level: 7
+
+    # Normalization settings
+    norm_activation:
+      activation: 'relu6'  # Mobile-optimized activation
+      norm_epsilon: 0.001
+      norm_momentum: 0.99
+      use_sync_bn: true
+
+  # Loss configuration
+  losses:
+    l2_weight_decay: 3.0e-05
+    focal_loss_alpha: 0.25
+    focal_loss_gamma: 1.5
+    box_loss_weight: 50.0
+
+  # Training data configuration
+  train_data:
+    input_path: 'label_studio/600x600/COCO/result.json'
+    is_training: true
+    global_batch_size: 8  # Adjust based on your GPU memory
+    dtype: 'float32'
+    shuffle_buffer_size: 100
+
+    parser:
+      aug_rand_hflip: true  # Horizontal flip augmentation
+      aug_scale_min: 0.8    # Scale augmentation
+      aug_scale_max: 1.2
+      aug_rand_saturation: true  # Color augmentation
+      aug_rand_brightness: true
+      aug_rand_hue: true
+
+  # Validation data configuration
+  validation_data:
+    input_path: 'label_studio/600x600/COCO/result.json'  # Use same for now, split later
+    is_training: false
+    global_batch_size: 8
+    dtype: 'float32'
+    drop_remainder: false
+
+# Trainer configuration
+trainer:
+  train_steps: 5000  # Adjust based on dataset size (~35 steps per epoch for 142 images)
+  validation_steps: 18  # 142 images / batch_size 8
+  validation_interval: 200
+  steps_per_loop: 100
+  summary_interval: 100
+  checkpoint_interval: 200
+
+  # Optimizer
+  optimizer_config:
+    optimizer:
+      type: 'sgd'
+      sgd:
+        momentum: 0.9
+        global_clipnorm: 10.0
+
+    learning_rate:
+      type: 'cosine'
+      cosine:
+        initial_learning_rate: 0.08  # Lower for small dataset
+        decay_steps: 5000
+        alpha: 0.0  # Final learning rate multiplier
+
+    warmup:
+      type: 'linear'
+      linear:
+        warmup_steps: 500
+        warmup_learning_rate: 0.0067
