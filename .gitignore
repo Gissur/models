@@ -97,3 +97,15 @@ ENV/
 # For mac
 .DS_Store
 label_studio/*.zip
+
+# Training outputs and models
+trained_models/
+*.tfrecord
+*.ckpt*
+checkpoint
+*.pb
+*.tflite
+events.out.tfevents.*
+
+# TensorBoard
+.tensorboard/

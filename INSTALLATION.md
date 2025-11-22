@@ -10,7 +10,36 @@ python3 scripts/verify_setup.py
 
 ## Install Dependencies
 
-### On Your Training Machine (PC/Laptop/Server)
+### Recommended: Use Virtual Environment
+
+**Best practice** - Isolates dependencies from system Python:
+
+```bash
+# Quick setup (recommended)
+bash scripts/setup_venv.sh
+
+# Then activate the environment
+source venv/bin/activate
+
+# Verify installation
+python3 scripts/verify_setup.py
+```
+
+The script automatically:
+- Creates a virtual environment in `venv/`
+- Installs TensorFlow and all dependencies
+- Keeps your system Python clean
+
+**Remember**: Always activate the venv before training:
+```bash
+source venv/bin/activate  # Activate
+# ... do your work ...
+deactivate  # When done
+```
+
+### Alternative: Manual Installation (Not Recommended)
+
+If you prefer to install directly to system Python:
 
 ```bash
 # Install TensorFlow and required packages
@@ -23,6 +52,8 @@ pip3 install -r official/requirements.txt
 # Verify installation
 python3 -c "import tensorflow as tf; print('TensorFlow version:', tf.__version__)"
 ```
+
+⚠️ **Warning**: This installs to system Python and may conflict with other projects.
 
 ### On Raspberry Pi 4
 

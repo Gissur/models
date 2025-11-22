@@ -68,7 +68,15 @@ Output: Bounding boxes + class predictions
 - Dynamic range quantization support
 - ~2.3M parameters (vs ~44M for ResNet50-based models)
 
-## Quick Start (3 Commands)
+## Quick Start
+
+### Step 0: Setup Virtual Environment (Recommended)
+
+```bash
+# Create and activate virtual environment
+bash scripts/setup_venv.sh
+source venv/bin/activate
+```
 
 ### Option 1: All-in-one
 ```bash
@@ -85,6 +93,11 @@ bash scripts/train_die_detector.sh
 
 # 3. Export to TFLite
 bash scripts/export_to_tflite.sh
+```
+
+**Note**: Always activate the virtual environment before training:
+```bash
+source venv/bin/activate  # Do this first!
 ```
 
 ## Current Dataset
